@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "sisyphus-client"
+version = "0.9.0"
+description = ""
+authors = ["JamesTheBard <jamesthebard@gmail.com>"]
+readme = "README.md"
+packages = [{include = "sisyphus_client"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+python-box = "^7.1.1"
+loguru = "^0.7.2"
+sisyphus-ffmpeg = {git = "https://github.com/JamesTheBard/sisyphus-ffmpeg.git"}
+jsonschema = "^4.19.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.15.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
