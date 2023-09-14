@@ -1,14 +1,15 @@
 import importlib
 import json
 import time
-from loguru import logger
+from datetime import datetime
 
 import requests
 from box import Box
+from loguru import logger
 
 from app.config import Config
+from app.exceptions import InitializationError, ValidationError
 from app.heartbeat import heartbeat
-from app.exceptions import ValidationError
 
 # Start the heartbeat
 logger.level("INFO")
@@ -39,9 +40,9 @@ while True:
 
     r = requests.get(Config.API_URL + '/queue/poll')
     if r.status_code == 404:
-        level = "DEBUG" if empty_queue else "INFO"
-        logger.log(level, "There are currently no jobs on the queue")
-        empty_queue = True
+        if not empty_queue:
+            logger.info("There are currently no jobs on the queue")
+            empty_queue = True
         continue
 
     empty_queue = False
@@ -52,20 +53,34 @@ while True:
     heartbeat.message.status = "in_progress"
     heartbeat.message.job_id = data.job_id
     logger.info(f"Starting job: {data.job_id}")
+    logger.info(f"Job title: {data.job_title}")
 
     # Start running tasks
+    start_time = datetime.now()
     logger.info(f"Found tasks in job: {', '.join(data.tasks.keys())}")
     for task, task_data in data.tasks.items():
         logger.info(f"Starting task: {task}")
         module_path = f"modules.{task}"
-        module = getattr(importlib.import_module(module_path), task.capitalize())
-        module = module(task=task_data)
+
+        try:
+            module = getattr(importlib.import_module(
+                module_path), task.capitalize())
+            module = module(task=task_data)
+        except InitializationError as e:
+            logger.warning(f"Could not initialize module: {e.message}")
+            logger.warning(f"Aborting job: {data.job_id}")
+            break
+
         try:
             module.validate()
         except ValidationError as e:
             logger.warning(f"Could not validate task data: {e.message}")
-            logger.warning(f"Aborting job: {data.job_id}")
+            logger.warning(f"Aborting job: {data.job_id} -> {task}")
+            logger.warning(f"Module runtime: {module.get_duration()}")
             break
+
         module.run()
         module.cleanup()
-    
+        logger.info(f"Module runtime: {module.get_duration()}")
+
+    logger.success(f"Job runtime: {datetime.now() - start_time}")

@@ -8,7 +8,7 @@ from box import Box
 
 class Heartbeat:
     def __init__(self, interval: int = 10):
-        self.interval = 1
+        self.interval = interval
         self.endpoint = Config.API_URL + '/workers/' + Config.HOST_UUID
         self.set_idle()
         self.thread = threading.Thread(target=self._send_heartbeat)
@@ -21,21 +21,17 @@ class Heartbeat:
         data = Box(data)
         data.hostname = Config.HOSTNAME
         data.version = Config.VERSION
-        data.worker_id = Config.HOST_UUID
 
     def set_idle(self):
-        self.message = Box({
-            "hostname": Config.HOSTNAME,
-            "status": "idle",
-            "version": Config.VERSION,
-        })
+        self.set_data({"status": "idle"})
 
     def set_startup(self):
-        self.message = Box({
-            "hostname": Config.HOSTNAME,
-            "status": "startup",
-            "version": Config.VERSION,
-        })
+        self.set_data({"status": "startup"})
+        
+    def set_in_progress(self, data: dict):
+        status = {"status": "in_progress"}
+        data = data | status
+        self.set_data(data)
 
     def _send_heartbeat(self):
         while True:

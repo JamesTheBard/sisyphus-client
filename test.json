@@ -1,0 +1,59 @@
+{
+    "job_title": "Awesome Encoder Job",
+    "tasks": {
+        "ffmpeg": {
+            "sources": [
+                "source_file_1.mkv",
+                "source_file_2.ac3"
+            ],
+            "source_maps": [
+                {
+                    "source": 0,
+                    "specifier": "v",
+                    "stream": 0
+                },
+                {
+                    "source": 1,
+                    "specifier": "a",
+                    "stream": 0
+                },
+                {
+                    "source": 0,
+                    "specifier": "s",
+                    "stream": 0
+                }
+            ],
+            "output_maps": [
+                {
+                    "specifier": "v",
+                    "stream": 0,
+                    "option_set": "dark-and-stormy"
+                },
+                {
+                    "specifier": "a",
+                    "stream": 0,
+                    "options": {
+                        "codec": "libopus",
+                        "b": "128k",
+                        "ac": 2,
+                        "vbr": "on",
+                        "compression_level": 10,
+                        "frame_duration": 60,
+                        "application": "audio"
+                    }
+                },
+                {
+                    "specifier": "s",
+                    "stream": 0,
+                    "options": {
+                        "codec": "copy"
+                    }
+                }
+            ],
+            "output_file": "/shared/output_file.mkv"
+        },
+        "matroska": {
+            "more_options": {}
+        }
+    }
+}
