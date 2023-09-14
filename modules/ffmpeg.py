@@ -61,7 +61,6 @@ class Ffmpeg(BaseModule):
         while True:
             time.sleep(1)
             if (return_code := process.poll()):
-                print(return_code)
                 break
             for line in process.stdout:
                 if match := re.search(r"frame=(\s*\d+)", line.decode()):
