@@ -15,11 +15,6 @@
                     "source": 0,
                     "specifier": "a",
                     "stream": 0
-                },
-                {
-                    "source": 0,
-                    "specifier": "s",
-                    "stream": 0
                 }
             ],
             "output_maps": [
@@ -40,16 +35,10 @@
                         "frame_duration": 60,
                         "application": "audio"
                     }
-                },
-                {
-                    "specifier": "s",
-                    "stream": 0,
-                    "options": {
-                        "codec": "copy"
-                    }
                 }
             ],
-            "output_file": "/shared/output_file.mkv"
+            "output_file": "output_file.mkv",
+            "overwrite": true
         },
         "matroska": {
             "more_options": {}
