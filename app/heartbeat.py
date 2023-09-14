@@ -4,6 +4,7 @@ import requests
 import time
 from app.config import Config
 from box import Box
+from loguru import logger
 
 
 class Heartbeat:
@@ -21,6 +22,7 @@ class Heartbeat:
         data = Box(data)
         data.hostname = Config.HOSTNAME
         data.version = Config.VERSION
+        self.message = data
 
     def set_idle(self):
         self.set_data({"status": "idle"})
@@ -35,6 +37,7 @@ class Heartbeat:
 
     def _send_heartbeat(self):
         while True:
+            logger.debug(f"Sending status message: {self.message}")
             requests.post(self.endpoint, json=self.message)
             time.sleep(self.interval)
 

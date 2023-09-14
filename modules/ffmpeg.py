@@ -22,10 +22,10 @@ class Ffmpeg(BaseModule):
         super().__init__(task)
         logger.info("Module loaded successfully.")
         logger.debug(f"Data: {self.task}")
-        self.status = {
+        self.status = Box({
             "status": "in_progress",
             "task": "ffmpeg"
-        }
+        })
         self.heartbeat.set_data(self.status)
         self.ffmpeg = F()
 
@@ -52,6 +52,7 @@ class Ffmpeg(BaseModule):
     def run(self):
         command = self.ffmpeg.generate_command()
         info = self.ffmpeg.get_primary_video_information()
+        logger.debug(f"Video information: {info}")
         logger.debug(f"Command to run: {command}")
         logger.info(f"Running ffmpeg encoding task")
         command = shlex.split(command)
@@ -59,20 +60,22 @@ class Ffmpeg(BaseModule):
         
         while True:
             time.sleep(1)
-            if (return_code := process.poll()) is not None:
+            if (return_code := process.poll()):
+                print(return_code)
                 break
             for line in process.stdout:
                 if match := re.search(r"frame=(\s*\d+)", line.decode()):
                     current_frame = int(match.group(1))
                     self.status.info = {
                         "current_frame": current_frame,
-                        "total_frames": info.frames
                     }
-                    self.status.progress = current_frame / info.frames * 100
+                    if info.frames:
+                        self.status.info.total_frames = info.frames
+                        self.status.progress = current_frame / info.frames * 100
                     self.heartbeat.set_data(self.status)
                     
-            if return_code != 0:
-                raise RunError(f"The `ffmpeg` command returned exit code {return_code}, command: {' '.join(command)}")
+        if return_code != 0:
+            raise RunError(f"The `ffmpeg` command returned exit code {return_code}, command: {' '.join(command)}")
                 
 
     def get_options_from_server(self) -> bool:
@@ -87,9 +90,7 @@ class Ffmpeg(BaseModule):
                 if r.status_code == 404:
                     raise ValidationError(
                         f"Could not find server-side option set '{output_map.option_set}'")
-                options = json.loads(r.content)
-                options.pop("_id", None)
-                options.pop("name", None)
+                options = Box(json.loads(r.content)).options
                 output_map.options = output_map.get("options", {}) | options
                 output_map.pop("option_set")
 

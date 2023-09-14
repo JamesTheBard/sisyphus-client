@@ -8,7 +8,7 @@ from box import Box
 from loguru import logger
 
 from app.config import Config
-from app.exceptions import InitializationError, ValidationError
+from app.exceptions import InitializationError, ValidationError, RunError
 from app.heartbeat import heartbeat
 
 # Start the heartbeat
@@ -79,7 +79,14 @@ while True:
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
 
-        module.run()
+        try:
+            module.run()
+        except RunError as e:
+            logger.warning(f"Failed to run task: {e.message}")
+            logger.warning(f"Aborting job: {data.job_id} -> {task}")
+            logger.warning(f"Module runtime: {module.get_duration()}")
+            break
+
         module.cleanup()
         logger.info(f"Module runtime: {module.get_duration()}")
 

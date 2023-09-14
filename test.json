@@ -3,8 +3,7 @@
     "tasks": {
         "ffmpeg": {
             "sources": [
-                "source_file_1.mkv",
-                "source_file_2.ac3"
+                "test02.mkv"
             ],
             "source_maps": [
                 {
@@ -13,7 +12,7 @@
                     "stream": 0
                 },
                 {
-                    "source": 1,
+                    "source": 0,
                     "specifier": "a",
                     "stream": 0
                 },
@@ -27,7 +26,7 @@
                 {
                     "specifier": "v",
                     "stream": 0,
-                    "option_set": "dark-and-stormy"
+                    "option_set": "x265-veryfast"
                 },
                 {
                     "specifier": "a",
