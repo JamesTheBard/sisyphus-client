@@ -2,7 +2,6 @@ import importlib
 import json
 import time
 from datetime import datetime
-import traceback
 
 import requests
 from box import Box
@@ -103,10 +102,10 @@ while True:
             logger.warning(f"Aborting job: {data.job_id} -> {task}")
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
-        
+
         job_failed = False
 
         logger.info(f"Module runtime: {module.get_duration()}")
-    
+
     job_log_level = "WARNING" if job_failed else "SUCCESS"
     logger.log(job_log_level, f"Job runtime: {datetime.now() - start_time}")
