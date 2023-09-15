@@ -1,6 +1,7 @@
 from app.heartbeat import heartbeat
 from box import Box
 from datetime import datetime
+from loguru import logger
 
 class BaseModule:
     def __init__(self, task):
@@ -10,10 +11,10 @@ class BaseModule:
         # pass
 
     def validate(self):
-        pass
+        logger.info("No validation actions, skipping")
 
     def run(self):
-        pass
+        logger.info("No run actions, skipping")
 
     def cleanup(self):
         pass

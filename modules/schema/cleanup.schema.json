@@ -1,0 +1,78 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Sisyphus Cleanup MIME-Type Schema",
+    "description": "The Sisyphus Cleanup schema.",
+    "type": "object",
+    "properties": {
+        "delete": {
+            "description": "A list of files/directories to delete.",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "description": "The path to remove."
+            }
+        },
+        "copy": {
+            "description": "A list of source/destination objects for copying files.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "description": "The path to the source file.",
+                        "type": "string"
+                    },
+                    "destination": {
+                        "description": "The path to copy the destination to.",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "source",
+                    "destination"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "move": {
+            "description": "A list of source/destination objects for moving files.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "description": "The path to the source file.",
+                        "type": "string"
+                    },
+                    "destination": {
+                        "description": "The path to move the destination to.",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "source",
+                    "destination"
+                ],
+                "additionalProperties": false
+            }
+        }
+    },
+    "anyOf": [
+        {
+            "required": [
+                "delete"
+            ]
+        },
+        {
+            "required": [
+                "copy"
+            ]
+        },
+        {
+            "required": [
+                "move"
+            ]
+        }
+    ],
+    "additionalProperties": false
+}

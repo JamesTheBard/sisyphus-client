@@ -2,6 +2,7 @@ import importlib
 import json
 import time
 from datetime import datetime
+import traceback
 
 import requests
 from box import Box
@@ -13,8 +14,10 @@ from app.exceptions import (CleanupError, InitializationError, RunError,
 from app.heartbeat import heartbeat
 
 # Start the heartbeat
-logger.level("INFO")
 logger.info("Starting client")
+logger.info(f"Worker ID..........: {Config.HOST_UUID}")
+logger.info(f"Hostname...........: {Config.HOSTNAME}")
+logger.info(f"Sisyphus Server URL: {Config.API_URL}")
 heartbeat.interval = 5
 heartbeat.set_startup()
 heartbeat.start()
@@ -62,6 +65,7 @@ while True:
     # Start running tasks
     start_time = datetime.now()
     logger.info(f"Found tasks in job: {', '.join(data.tasks.keys())}")
+    job_failed = True
     for task, task_data in data.tasks.items():
         logger.info(f"Starting task: {task}")
         module_path = f"modules.{task}"
@@ -95,10 +99,14 @@ while True:
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
         except:
-            logger.warning(f"Unknown failure on task: {e.message}")
+            logger.warning(f"Unknown failure on task!")
             logger.warning(f"Aborting job: {data.job_id} -> {task}")
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
+        
+        job_failed = False
 
         logger.info(f"Module runtime: {module.get_duration()}")
-        logger.success(f"Job runtime: {datetime.now() - start_time}")
+    
+    job_log_level = "WARNING" if job_failed else "SUCCESS"
+    logger.log(job_log_level, f"Job runtime: {datetime.now() - start_time}")

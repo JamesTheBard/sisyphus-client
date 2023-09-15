@@ -1,47 +1,95 @@
 {
-    "job_title": "Awesome Encoder Job",
-    "tasks": {
-        "ffmpeg": {
-            "sources": [
-                "test02.mkv"
-            ],
-            "source_maps": [
-                {
-                    "source": 0,
-                    "specifier": "v",
-                    "stream": 0
-                },
-                {
-                    "source": 0,
-                    "specifier": "a",
-                    "stream": 0
-                }
-            ],
-            "output_maps": [
-                {
-                    "specifier": "v",
-                    "stream": 0,
-                    "option_set": "x265-veryfast"
-                },
-                {
-                    "specifier": "a",
-                    "stream": 0,
-                    "options": {
-                        "codec": "libopus",
-                        "b": "128k",
-                        "ac": 2,
-                        "vbr": "on",
-                        "compression_level": 10,
-                        "frame_duration": 60,
-                        "application": "audio"
-                    }
-                }
-            ],
-            "output_file": "output_file.mkv",
-            "overwrite": true
+  "job_title": "Awesome Encoder Job",
+  "tasks": {
+    "ffmpeg": {
+      "sources": [
+        "test02.mkv"
+      ],
+      "source_maps": [
+        {
+          "source": 0,
+          "specifier": "v",
+          "stream": 0
         },
-        "matroska": {
-            "more_options": {}
+        {
+          "source": 0,
+          "specifier": "a",
+          "stream": 0
         }
+      ],
+      "output_maps": [
+        {
+          "specifier": "v",
+          "stream": 0,
+          "option_set": "x265-veryfast"
+        },
+        {
+          "specifier": "a",
+          "stream": 0,
+          "options": {
+            "codec": "libopus",
+            "b": "128k",
+            "ac": 2,
+            "vbr": "on",
+            "compression_level": 10,
+            "frame_duration": 60,
+            "application": "audio"
+          }
+        }
+      ],
+      "output_file": "output_file.mkv",
+      "overwrite": true
+    },
+    "matroska": {
+      "sources": [
+        {
+          "filename": "output_file.mkv"
+        }
+      ],
+      "tracks": [
+        {
+          "source": 0,
+          "track": 0,
+          "options": {
+            "language": "eng",
+            "default-track": "yes",
+            "track-name": "Awesome Muxed Video"
+          }
+        },
+        {
+          "source": 0,
+          "track": 1,
+          "options": {
+            "language": "jpn",
+            "default-track": "yes",
+            "track-name": "Stereo 2.0"
+          }
+        }
+      ],
+      "output_file": "Awesome Muxed Video - 1x01 - The Return of Sisyphus.mkv",
+      "options": {
+        "no-global-tags": null,
+        "no-track-tags": null,
+        "title": "Awesome Muxed Video"
+      }
+    },
+    "cleanup": {
+      "copy": [
+        {
+          "source": "output_file.mkv",
+          "destination": "output_file_2.mkv"
+        }
+      ],
+      "move": [
+        {
+          "source": "output_file_2.mkv",
+          "destination": "output_file_3.mkv"
+        }
+      ],
+      "delete": [
+        "output_file.mkv",
+        "output_file_3.mkv"
+      ]
     }
+  }
 }
