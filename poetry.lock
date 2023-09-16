@@ -681,7 +681,7 @@ rich = "^13.5.2"
 type = "git"
 url = "https://github.com/JamesTheBard/sisyphus-matroska.git"
 reference = "HEAD"
-resolved_reference = "639ddff7947ae04e97c7554b2fbab5959e0302a2"
+resolved_reference = "ae25d4e63f4c3d58c414ac97830c3bc9b8d06aff"
 
 [[package]]
 name = "six"
