@@ -1,7 +1,7 @@
 from box import Box
 from jsonschema import exceptions as JsonExceptions
 from loguru import logger
-from mkvmerge import Mkvmerge as M
+from mkvmerge import MkvMerge as M
 
 from app.exceptions import RunError, ValidationError
 from modules.base import BaseModule

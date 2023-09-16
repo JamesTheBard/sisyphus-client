@@ -1,6 +1,27 @@
 {
   "job_title": "Awesome Encoder Job",
   "tasks": {
+    "mkvextract": {
+      "source": "test02.mkv",
+      "tracks": [
+        {
+          "id": 0,
+          "track_type": "subtitles",
+          "filename": "subtitles.ssa"
+        },
+        {
+          "id": 0,
+          "track_type": "audio",
+          "language": "jpn",
+          "filename": "audio_jpn.opus"
+        },
+        {
+          "id": 3,
+          "filename": "audio_eng.opus"
+        }
+      ],
+      "chapters": "chapters.txt"
+    },
     "ffmpeg": {
       "sources": [
         "test02.mkv"
