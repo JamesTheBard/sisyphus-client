@@ -54,7 +54,8 @@ class Cleanup(BaseModule):
                 else:
                     logger.debug(f"Skipping: {str(f)}")
         except OSError as e:
-            raise RunError(e.message)
+            raise RunError(f"OS error raised when deleting file: {str(f)}")
+
         except PermissionError as e:
             raise RunError(e.message)
 
@@ -65,7 +66,7 @@ class Cleanup(BaseModule):
                 src.rename(dest)
                 logger.debug(f"Moved file: {str(src)} -> {str(dest)}")
         except OSError as e:
-            raise RunError(e.message)
+            raise RunError(f"OS error raised when moving file: {str(src)} -> {str(dest)}")
         except PermissionError as e:
             raise RunError(e.message)
 
@@ -76,6 +77,6 @@ class Cleanup(BaseModule):
                 shutil.copy(src, dest)
                 logger.debug(f"Copied file: {str(src)} -> {str(dest)}")
         except OSError as e:
-            raise RunError(e.message)
+            raise RunError(f"OS error raised when copying file: {str(src)} -> {str(dest)}")
         except PermissionError as e:
             raise RunError(e.message)
