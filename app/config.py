@@ -13,4 +13,4 @@ class Config:
     API_URL = os.environ.get("API_URL", "http://localhost:5000")
     VERSION = pyproject.tool.poetry.version
     HOSTNAME = os.environ.get("HOSTNAME_OVERRIDE", platform.node())
-    HOST_UUID = str(uuid.uuid4())
+    HOST_UUID = os.environ.get("HOST_UUID", str(uuid.uuid4()))
