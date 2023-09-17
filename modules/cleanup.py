@@ -63,10 +63,13 @@ class Cleanup(BaseModule):
         try:
             for i in data:
                 src, dest = Path(i["source"]), Path(i["destination"])
-                src.rename(dest)
+                shutil.copy2(src, dest)
+                src.unlink()
                 logger.debug(f"Moved file: {str(src)} -> {str(dest)}")
         except OSError as e:
             raise RunError(f"OS error raised when moving file: {str(src)} -> {str(dest)}")
+        except FileNotFoundError as e:
+            raise RunError(f"File not found during move: {e.filename}")
         except PermissionError as e:
             raise RunError(e.message)
 
@@ -74,9 +77,11 @@ class Cleanup(BaseModule):
         try:
             for i in data:
                 src, dest = Path(i["source"]), Path(i["destination"])
-                shutil.copy(src, dest)
+                shutil.copy2(src, dest)
                 logger.debug(f"Copied file: {str(src)} -> {str(dest)}")
         except OSError as e:
             raise RunError(f"OS error raised when copying file: {str(src)} -> {str(dest)}")
+        except FileNotFoundError as e:
+            raise RunError(f"File not found during copy: {e.filename}")
         except PermissionError as e:
             raise RunError(e.message)
