@@ -11,11 +11,11 @@ class Heartbeat:
     def __init__(self, interval: int = 10):
         self.interval = interval
         self.endpoint = Config.API_URL + '/workers/' + Config.HOST_UUID
+        self.job_id = None
+        self.job_title = None
         self.set_idle()
         self.thread = threading.Thread(target=self.send_heartbeat)
         self.thread.daemon = True
-        self.job_id = None
-        self.job_title = None
 
     def start(self):
         self.thread.start()
