@@ -15,6 +15,7 @@ class Heartbeat:
         self.thread = threading.Thread(target=self.send_heartbeat)
         self.thread.daemon = True
         self.job_id = None
+        self.job_title = None
 
     def start(self):
         self.thread.start()
@@ -25,6 +26,8 @@ class Heartbeat:
         data.version = Config.VERSION
         if self.job_id:
             data.job_id = self.job_id
+        if self.job_title:
+            data.job_title = self.job_title
         self.message = data
 
     def set_idle(self):

@@ -59,7 +59,7 @@ while True:
     heartbeat.message.job_id = data.job_id
     logger.info(f"Starting job: {data.job_id}")
     logger.info(f"Job title: {data.job_title}")
-    heartbeat.job_id = data.job_id
+    heartbeat.job_id, heartbeat.job_title = data.job_id, data.job_title
 
     # Start running tasks
     start_time = datetime.now()
