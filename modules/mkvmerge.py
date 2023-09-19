@@ -17,7 +17,7 @@ class Mkvmerge(BaseModule):
         mkvmerge (MkvMerge): The `sisyphus-ffmpeg` module for processing `ffmpeg` tasks
     """
     mkvmerge: M
-    
+
     def __init__(self, task):
         super().__init__(task)
         logger.info("Module loaded successfully.")

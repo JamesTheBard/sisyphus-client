@@ -1,15 +1,18 @@
-import threading
 import logging
-import requests
+import threading
 import time
-from app.config import Config
+from typing import Optional
+
+import requests
 from box import Box
 from loguru import logger
-from typing import Optional
+
+from app.config import Config
+
 
 class Heartbeat:
     """The heartbeat class used to communicate status back to the central API server.
-    
+
     Attributes:
         endpoint (str): The URL to used to send updates to the API server
         interval (int): The number of seconds between sending updates back to the API server
@@ -22,7 +25,7 @@ class Heartbeat:
     job_id: Optional[str]
     job_title: Optional[str]
     thread: threading.Thread
-    
+
     def __init__(self, interval: int = 10):
         """Initializes the instance based on the provided interval.
 
@@ -68,7 +71,7 @@ class Heartbeat:
         """
         self.job_id = None
         self.set_data({"status": "startup"})
-        
+
     def set_in_progress(self, data: dict) -> None:
         """Update the heartbeat status to in progress using the provided data.
 
@@ -86,5 +89,6 @@ class Heartbeat:
             logger.debug(f"Sending status message: {self.message}")
             requests.post(self.endpoint, json=self.message)
             time.sleep(self.interval)
+
 
 heartbeat = Heartbeat()

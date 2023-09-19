@@ -27,7 +27,7 @@ class Ffmpeg(BaseModule):
         ffmpeg (Ffmpeg): The `sisyphus-ffmpeg` module for processing `ffmpeg` tasks
     """
     ffmpeg: F
-    
+
     def __init__(self, task):
         super().__init__(task)
         logger.info("Module loaded successfully.")

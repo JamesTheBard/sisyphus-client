@@ -20,6 +20,7 @@ class Cleanup(BaseModule):
         task (Box): The data that contains the task information to run from the job
         start_time (datetime): The time the module was initialized (task start time)
     """
+
     def __init__(self, task):
         super().__init__(task)
         logger.info("Module loaded successfully.")
@@ -79,7 +80,7 @@ class Cleanup(BaseModule):
         """Move files in the filesystem.
 
         Args:
-            data (List[dict[str, str]]): A list of source/destination paths.
+            data (List[Dict[str, str]]): A list of source/destination paths.
 
         Raises:
             RunError: Cannot move the source file to the given destination path
@@ -91,7 +92,8 @@ class Cleanup(BaseModule):
                 src.unlink()
                 logger.debug(f"Moved file: {str(src)} -> {str(dest)}")
         except OSError as e:
-            raise RunError(f"OS error raised when moving file: {str(src)} -> {str(dest)}")
+            raise RunError(
+                f"OS error raised when moving file: {str(src)} -> {str(dest)}")
         except FileNotFoundError as e:
             raise RunError(f"File not found during move: {e.filename}")
         except PermissionError as e:
@@ -101,7 +103,7 @@ class Cleanup(BaseModule):
         """Copy files in the filesystem.
 
         Args:
-            data (List[dict[str, str]]): A list of source/destination paths.
+            data (List[Dict[str, str]]): A list of source/destination paths.
 
         Raises:
             RunError: Cannot copy the source file to the given destination path
@@ -112,7 +114,8 @@ class Cleanup(BaseModule):
                 shutil.copy2(src, dest)
                 logger.debug(f"Copied file: {str(src)} -> {str(dest)}")
         except OSError as e:
-            raise RunError(f"OS error raised when copying file: {str(src)} -> {str(dest)}")
+            raise RunError(
+                f"OS error raised when copying file: {str(src)} -> {str(dest)}")
         except FileNotFoundError as e:
             raise RunError(f"File not found during copy: {e.filename}")
         except PermissionError as e:
