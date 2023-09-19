@@ -8,6 +8,16 @@ from modules.base import BaseModule
 
 
 class Mkvmerge(BaseModule):
+    """The Mkvmerge module used to merge tracks and other information into a Matroska file.
+
+    Attributes:
+        heartbeat (Heartbeat): The heartbeat object for sending status back to the API server
+        task (Box): The data that contains the task information to run from the job
+        start_time (datetime): The time the module was initialized (task start time)
+        mkvmerge (MkvMerge): The `sisyphus-ffmpeg` module for processing `ffmpeg` tasks
+    """
+    mkvmerge: M
+    
     def __init__(self, task):
         super().__init__(task)
         logger.info("Module loaded successfully.")

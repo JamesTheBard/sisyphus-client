@@ -18,6 +18,16 @@ from modules.base import BaseModule
 
 
 class Ffmpeg(BaseModule):
+    """The Ffmpeg module used to perform encoding.
+
+    Attributes:
+        heartbeat (Heartbeat): The heartbeat object for sending status back to the API server
+        task (Box): The data that contains the task information to run from the job
+        start_time (datetime): The time the module was initialized (task start time)
+        ffmpeg (Ffmpeg): The `sisyphus-ffmpeg` module for processing `ffmpeg` tasks
+    """
+    ffmpeg: F
+    
     def __init__(self, task):
         super().__init__(task)
         logger.info("Module loaded successfully.")
@@ -79,6 +89,14 @@ class Ffmpeg(BaseModule):
                 f"The `ffmpeg` command returned exit code {return_code}, command: {' '.join(command)}")
 
     def get_options_from_server(self) -> bool:
+        """Retrieves module option set data from the API server.
+
+        Raises:
+            ValidationError: Cannot find the requested option set data from the API server.
+
+        Returns:
+            bool: Returns `True` if the task data has changed, otherwise `False`
+        """
         has_changed = False
         for output_map in self.task.get("output_maps", []):
             output_map_keys = output_map.keys()
