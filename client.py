@@ -108,4 +108,7 @@ while True:
         logger.info(f"Module runtime: {module.get_duration()}")
 
     job_log_level = "WARNING" if job_failed else "SUCCESS"
+    route_suffix = "/failed" if job_failed else "/completed"
+
     logger.log(job_log_level, f"Job runtime: {datetime.now() - start_time}")
+    requests.post(Config.API_URL + '/jobs/' + data.job_id + route_suffix)
