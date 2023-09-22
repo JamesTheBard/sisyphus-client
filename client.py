@@ -65,9 +65,11 @@ while True:
     start_time = datetime.now()
     logger.info(f"Found tasks in job: {', '.join(data.tasks.keys())}")
     job_failed = True
-    for task, task_data in data.tasks.items():
-        logger.info(f"Starting task: {task}")
-        module_path = f"modules.{task}"
+    for idx, task in data.tasks.enumerate():
+        task = Box(task)
+        task_name, task_data = task.module, task.data
+        logger.info(f"Starting task: {task_name} [{idx + 1} of {len(data.tasks)}]")
+        module_path = f"modules.{task_name}"
 
         try:
             module = getattr(importlib.import_module(
@@ -84,22 +86,22 @@ while True:
             module.cleanup()
         except ValidationError as e:
             logger.warning(f"Could not validate task data: {e.message}")
-            logger.warning(f"Aborting job: {data.job_id} -> {task}")
+            logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
         except RunError as e:
             logger.warning(f"Failed to run task: {e.message}")
-            logger.warning(f"Aborting job: {data.job_id} -> {task}")
+            logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
         except CleanupError as e:
             logger.warning(f"Failed to cleanup task: {e.message}")
-            logger.warning(f"Aborting job: {data.job_id} -> {task}")
+            logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
         except:
             logger.warning(f"Unknown failure on task!")
-            logger.warning(f"Aborting job: {data.job_id} -> {task}")
+            logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
 
@@ -108,7 +110,6 @@ while True:
         logger.info(f"Module runtime: {module.get_duration()}")
 
     job_log_level = "WARNING" if job_failed else "SUCCESS"
-    route_suffix = "/failed" if job_failed else "/completed"
 
     logger.log(job_log_level, f"Job runtime: {datetime.now() - start_time}")
-    requests.post(Config.API_URL + '/jobs/' + data.job_id + route_suffix)
+    requests.patch(Config.API_URL + '/jobs/' + data.job_id + '/completed', json={"failed": job_failed})
