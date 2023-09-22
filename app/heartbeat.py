@@ -1,6 +1,7 @@
 import logging
 import threading
 import time
+from datetime import datetime
 from typing import Optional
 
 import requests
@@ -25,6 +26,7 @@ class Heartbeat:
     job_id: Optional[str]
     job_title: Optional[str]
     thread: threading.Thread
+    start_time: Optional[datetime]
 
     def __init__(self, interval: int = 10):
         """Initializes the instance based on the provided interval.
@@ -36,6 +38,7 @@ class Heartbeat:
         self.endpoint = Config.API_URL + '/workers/' + Config.HOST_UUID
         self.job_id = None
         self.job_title = None
+        self.start_time = None
         self.set_idle()
         self.thread = threading.Thread(target=self.send_heartbeat)
         self.thread.daemon = True
@@ -43,6 +46,7 @@ class Heartbeat:
     def start(self) -> None:
         """Start the background thread to send updates to the API server.
         """
+        self.start_time = datetime.now()
         self.thread.start()
 
     def set_data(self, data: dict) -> None:
@@ -54,6 +58,7 @@ class Heartbeat:
         data = Box(data)
         data.hostname = Config.HOSTNAME
         data.version = Config.VERSION
+        data.online_at = str(self.start_time)
         if self.job_id:
             data.job_id = self.job_id
         if self.job_title:
