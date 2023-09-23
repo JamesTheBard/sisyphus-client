@@ -87,7 +87,13 @@ while True:
                 module_path), task_name.capitalize())
             module = module(task=task_data)
         except InitializationError as e:
+            job_results_info.message = f"Could not initialize module: {e.message}"
             logger.warning(f"Could not initialize module: {e.message}")
+            logger.warning(f"Aborting job: {data.job_id}")
+            break
+        except ModuleNotFoundError as e:
+            job_results_info.message = f"Could not find module: {module_path}"
+            logger.warning(f"Could not find module: {module_path}")
             logger.warning(f"Aborting job: {data.job_id}")
             break
 
