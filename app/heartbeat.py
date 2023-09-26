@@ -69,12 +69,14 @@ class Heartbeat:
         """Update the heartbeat status to idle.
         """
         self.job_id = None
+        self.job_title = None
         self.set_data({"status": "idle"})
 
     def set_startup(self) -> None:
         """Update the heartbeat status to startup.
         """
         self.job_id = None
+        self.job_title = None
         self.set_data({"status": "startup"})
 
     def set_in_progress(self, data: dict) -> None:
