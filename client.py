@@ -81,6 +81,8 @@ while True:
         logger.info(f"Starting task: {task_name} [{idx + 1} of {len(data.tasks)}]")
         module_path = f"modules.{task_name}"
         job_results_info.module = task_name
+        job_results_info.worker = Config.HOSTNAME
+        job_results_info.worker_id = Config.HOST_UUID
         
         try:
             module = getattr(importlib.import_module(
