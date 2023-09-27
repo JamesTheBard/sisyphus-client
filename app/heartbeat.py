@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional
 
 import requests
+import urllib3
 from box import Box
 from loguru import logger
 
@@ -92,9 +93,19 @@ class Heartbeat:
     def send_heartbeat(self) -> None:
         """Send the heartbeat to the API server.
         """
+        connect_issue = False
         while True:
             logger.debug(f"Sending status message: {self.message}")
-            requests.post(self.endpoint, json=self.message)
+            try:
+                requests.post(self.endpoint, json=self.message, timeout=2)
+            except Exception:
+                if not connect_issue:
+                    logger.warning("Failed to send heartbeat to API server!")
+                connect_issue = True
+                time.sleep(10)
+                continue
+
+            connect_issue = False
             time.sleep(self.interval)
 
 

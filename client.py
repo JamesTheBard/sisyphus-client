@@ -26,12 +26,25 @@ logger.debug(f"Heartbeat started, sending info to {Config.API_URL}")
 empty_queue = False
 queue_disabled = False
 worker_disabled = False
+connect_issue = False
+
 while True:
     heartbeat.set_idle()
     time.sleep(5)
 
     # Check to see if the entire queue is disabled
-    r = requests.get(Config.API_URL + '/queue')
+    try:
+        logger.debug("Polling API server for job")
+        r = requests.get(Config.API_URL + '/queue')
+    except Exception:
+        if not connect_issue:
+            logger.warning("Cannot connect to API server to pull job, will poll once able to connect!")
+        connect_issue = True
+        time.sleep(5)
+        continue
+
+    connect_issue = False
+
     data = Box(json.loads(r.content))
     if data.attributes.disabled:
         if not queue_disabled:
@@ -42,6 +55,11 @@ while True:
 
     # Check to see if we're 'allowed' to process the queue
     r = requests.get(Config.API_URL + '/workers/' + Config.HOST_UUID)
+
+    if r.status_code != 200:
+        logger.warning("Could not pull worker status from server!")
+        continue
+
     data = Box(json.loads(r.content))
     if data.attributes.disabled:
         if not worker_disabled:
