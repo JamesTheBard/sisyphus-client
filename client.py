@@ -203,7 +203,7 @@ while True:
             method="PATCH", 
             rest_path=f'/jobs/{data.job_id}/completed',
             fail_message="Could not finalize job in the queue!",
-            json={"info": job_results_info}
+            json={"failed": job_failed, "info": job_results_info}
         )
     except NetworkError:
         logger.warning(e.message)
