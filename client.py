@@ -184,7 +184,7 @@ while True:
             break
 
         job_failed = False
-        job_results_info.completed = True
+        job_results_info.completed = not job_failed
         logger.info(f"Module runtime: {module.get_duration()}")
 
     if job_failed:
@@ -201,9 +201,9 @@ while True:
     try:
         connect_to_api(
             method="PATCH", 
-            rest_path='/jobs' + data.job_id + '/completed',
+            rest_path=f'/jobs/{data.job_id}/completed',
             fail_message="Could not finalize job in the queue!",
-            json={"failed": job_failed, "info": job_results_info}
+            json={"info": job_results_info}
         )
     except NetworkError:
         logger.warning(e.message)
