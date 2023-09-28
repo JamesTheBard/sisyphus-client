@@ -28,3 +28,10 @@ class CleanupError(Error):
 
     def __init__(self, message):
         self.message = message
+
+class NetworkError(Error):
+    """Could not connect to the network resource"""
+    
+    def __init__(self, message):
+        self.message = message
+        

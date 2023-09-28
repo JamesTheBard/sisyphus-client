@@ -1,6 +1,7 @@
 import importlib
 import json
 import time
+from typing import Optional
 from datetime import datetime
 
 import requests
@@ -9,7 +10,7 @@ from loguru import logger
 
 from app.config import Config
 from app.exceptions import (CleanupError, InitializationError, RunError,
-                            ValidationError)
+                            ValidationError, NetworkError)
 from app.heartbeat import heartbeat
 
 # Start the heartbeat
@@ -17,34 +18,51 @@ logger.info(f"Starting 'sisyphus-client', version {Config.VERSION}")
 logger.info(f"Worker ID..........: {Config.HOST_UUID}")
 logger.info(f"Hostname...........: {Config.HOSTNAME}")
 logger.info(f"Sisyphus Server....: {Config.API_URL}")
-heartbeat.interval = 5
+heartbeat.interval = Config.HEARTBEAT_INTERVAL
 heartbeat.set_startup()
 heartbeat.start()
 logger.debug(f"Heartbeat started, sending info to {Config.API_URL}")
 
 # Processing loop
-empty_queue = False
-queue_disabled = False
-worker_disabled = False
-connect_issue = False
+last_error: Optional[str] = None
+
+def connect_to_api(method: str, rest_path: str, fail_message: str, **kwargs) -> requests.Response:
+    """Connect to the API server via REST.
+
+    Args:
+        method (str): The method to use (e.g. `GET`, `POST`)
+        rest_path (str): The path to use (e.g. `/queue`)
+        fail_message (str): The message to use in case of failure
+
+    Raises:
+        NetworkError: When there is any issue connecting to the API server or getting data from it.
+
+    Returns:
+        requests.Response: The resulting response from the request.
+    """
+    url = Config.API_URL + rest_path
+    try:
+        logger.debug(f"Attempting '{method}' request on: '{url}'")
+        r = requests.request(method, url, timeout=3, **kwargs)
+    except Exception:
+        raise NetworkError(fail_message)
+    return r
+
 
 while True:
     heartbeat.set_idle()
-    time.sleep(5)
+    time.sleep(Config.QUEUE_POLL_INTERVAL)
 
     # Check to see if the entire queue is disabled
     try:
-        logger.debug("Polling API server for job")
-        r = requests.get(Config.API_URL + '/queue')
-    except Exception:
-        if not connect_issue:
-            logger.warning("Cannot connect to API server to pull job, will poll once able to connect!")
-        connect_issue = True
-        time.sleep(5)
+        r = connect_to_api("GET", "/queue", "Error polling API queue for status!")
+    except NetworkError as e:
+        if last_error != "ERR_QUEUE_STATUS":
+            logger.warning(e.message)
+        last_error = "ERR_QUEUE_STATUS"
+        time.sleep(Config.NETWORK_RETRY_INTERVAL)
         continue
-
-    connect_issue = False
-
+        
     data = Box(json.loads(r.content))
     if data.attributes.disabled:
         if not queue_disabled:
@@ -54,7 +72,14 @@ while True:
     queue_disabled = False
 
     # Check to see if we're 'allowed' to process the queue
-    r = requests.get(Config.API_URL + '/workers/' + Config.HOST_UUID)
+    try:
+        r = connect_to_api("GET", "/workers/" + Config.HOST_UUID, "Error polling worker for queue permissions!")
+    except NetworkError as e:
+        if last_error != "ERR_WORKER_STATUS":
+            logger.warning(e.message)
+        last_error = "ERR_WORKER_STATUS"
+        time.sleep(Config.NETWORK_RETRY_INTERVAL)
+        continue
 
     if r.status_code != 200:
         logger.warning("Could not pull worker status from server!")
@@ -69,14 +94,24 @@ while True:
     worker_disabled = False
 
     # Pull a task off the queue
-    r = requests.get(Config.API_URL + '/queue/poll')
-    if r.status_code == 404:
-        if not empty_queue:
-            logger.info("There are currently no jobs on the queue")
-            empty_queue = True
+    try:
+        r = connect_to_api("GET", "/queue/poll", "Error polling queue for jobs!")
+    except NetworkError as e:
+        if last_error != "ERR_POLL_STATUS":
+            logger.warning(e.message)
+        last_error = "ERR_POLL_STATUS"
+        time.sleep(Config.NETWORK_RETRY_INTERVAL)
         continue
-    stop_logging = False
+
+    if r.status_code == 404:
+        if last_error != "ERR_QUEUE_EMPTY":
+            logger.info("There are currently no jobs on the queue")
+            last_error = "ERR_QUEUE_EMPTY"
+        continue
     
+    # Reset errors since we made it through the connection gauntlet
+    last_error = None
+
     data = Box(json.loads(r.content))
 
     # Update heartbeat
@@ -92,16 +127,18 @@ while True:
     logger.info(f"Found tasks in job: {', '.join(tasks)}")
     job_failed = True
     job_results_info = Box()
-    job_results_info.client_start_time = str(start_time)
+    job_results_info.start_time = str(start_time)
     for idx, task in enumerate(data.tasks):
         task = Box(task)
         task_name, task_data = task.module, task.data
-        logger.info(f"Starting task: {task_name} [{idx + 1} of {len(data.tasks)}]")
+        logger.info(
+            f"Starting task: {task_name} [{idx + 1} of {len(data.tasks)}]")
         module_path = f"modules.{task_name}"
         job_results_info.module = task_name
         job_results_info.worker = Config.HOSTNAME
         job_results_info.worker_id = Config.HOST_UUID
-        
+        job_results_info.version = Config.VERSION
+
         try:
             module = getattr(importlib.import_module(
                 module_path), task_name.capitalize())
@@ -145,13 +182,29 @@ while True:
             logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
-        
 
         job_failed = False
         job_results_info.completed = True
         logger.info(f"Module runtime: {module.get_duration()}")
 
-    job_log_level = "WARNING" if job_failed else "SUCCESS"
+    if job_failed:
+        job_log_level = "WARNING"
+    else:
+        job_log_level = "SUCCESS"
+        job_results_info.pop("module")
+
+    job_results_info.end_time = str(datetime.now())
     job_results_info.runtime = str(datetime.now() - start_time)
     logger.log(job_log_level, f"Job runtime: {datetime.now() - start_time}")
-    requests.patch(Config.API_URL + '/jobs/' + data.job_id + '/completed', json={"failed": job_failed, "info": job_results_info})
+    
+    # Move job information into the appropriate collection
+    try:
+        connect_to_api(
+            method="PATCH", 
+            rest_path='/jobs' + data.job_id + '/completed',
+            fail_message="Could not finalize job in the queue!",
+            json={"failed": job_failed, "info": job_results_info}
+        )
+    except NetworkError:
+        logger.warning(e.message)
+    

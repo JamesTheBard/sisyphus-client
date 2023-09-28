@@ -14,3 +14,6 @@ class Config:
     VERSION = pyproject.tool.poetry.version
     HOSTNAME = os.environ.get("HOSTNAME_OVERRIDE", platform.node())
     HOST_UUID = os.environ.get("HOST_UUID", str(uuid.uuid4()))
+    HEARTBEAT_INTERVAL = int(os.environ.get("HEARTBEAT_INTERVAL", "5"))
+    QUEUE_POLL_INTERVAL = int(os.environ.get("QUEUE_POLL_INTERVAL", "10"))
+    NETWORK_RETRY_INTERVAL = int(os.environ.get("NETWORK_RETRY_INTERVAL", "20"))
