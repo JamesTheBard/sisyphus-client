@@ -124,7 +124,7 @@ while True:
     # Start running tasks
     start_time = datetime.now()
     tasks = [i.module for i in data.tasks]
-    logger.info(f"Found tasks in job: {', '.join(tasks)}")
+    logger.info(f"Found tasks in job: {' >> '.join(tasks)}")
     job_failed = True
     job_results_info = Box()
     job_results_info.start_time = str(start_time)
