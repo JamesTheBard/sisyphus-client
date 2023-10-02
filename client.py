@@ -2,7 +2,7 @@ import importlib
 import json
 import time
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 import requests
 from box import Box
@@ -122,7 +122,7 @@ while True:
     heartbeat.job_id, heartbeat.job_title = data.job_id, data.job_title
 
     # Start running tasks
-    start_time = datetime.now()
+    start_time = datetime.now(tz=timezone.utc)
     tasks = [i.module for i in data.tasks]
     logger.info(f"Found tasks in job: {' >> '.join(tasks)}")
     job_failed = True

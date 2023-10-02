@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Union
 
 from box import Box
@@ -32,7 +32,7 @@ class BaseModule:
         """
         self.heartbeat = heartbeat
         self.task = Box(task)
-        self.start_time = datetime.now()
+        self.start_time = datetime.now(tz=timezone.utc)
         # pass
 
     def validate(self) -> None:
@@ -65,4 +65,4 @@ class BaseModule:
         Returns:
             datetime: The time elapsed since module start
         """
-        return datetime.now() - self.start_time
+        return datetime.now(tz=timezone.utc) - self.start_time
