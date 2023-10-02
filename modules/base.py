@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Union
 
 from box import Box
@@ -7,6 +7,7 @@ from loguru import logger
 from app.exceptions import (CleanupError, InitializationError, RunError,
                             ValidationError)
 from app.heartbeat import Heartbeat, heartbeat
+from app.config import Config
 
 
 class BaseModule:
@@ -32,7 +33,7 @@ class BaseModule:
         """
         self.heartbeat = heartbeat
         self.task = Box(task)
-        self.start_time = datetime.now(tz=timezone.utc)
+        self.start_time = datetime.now(tz=Config.API_TIMEZONE)
         # pass
 
     def validate(self) -> None:
@@ -65,4 +66,4 @@ class BaseModule:
         Returns:
             datetime: The time elapsed since module start
         """
-        return datetime.now(tz=timezone.utc) - self.start_time
+        return datetime.now(tz=Config.API_TIMEZONE) - self.start_time

@@ -1,7 +1,7 @@
 import logging
 import threading
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
 
 import requests
@@ -47,7 +47,7 @@ class Heartbeat:
     def start(self) -> None:
         """Start the background thread to send updates to the API server.
         """
-        self.start_time = datetime.now(tz=timezone.utc)
+        self.start_time = datetime.now(tz=Config.API_TIMEZONE)
         self.thread.start()
 
     def set_data(self, data: dict) -> None:

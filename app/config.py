@@ -2,6 +2,7 @@ import os
 import platform
 import tomllib
 import uuid
+from zoneinfo import ZoneInfo
 
 from box import Box
 
@@ -11,6 +12,7 @@ with open("pyproject.toml", 'rb') as f:
 
 class Config:
     API_URL = os.environ.get("API_URL", "http://localhost:5000")
+    API_TIMEZONE = ZoneInfo(os.environ.get("API_TIMEZONE", "UTC"))
     VERSION = pyproject.tool.poetry.version
     HOSTNAME = os.environ.get("HOSTNAME_OVERRIDE", platform.node())
     HOST_UUID = os.environ.get("HOST_UUID", str(uuid.uuid4()))

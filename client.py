@@ -2,7 +2,7 @@ import importlib
 import json
 import time
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime
 
 import requests
 from box import Box
@@ -122,7 +122,7 @@ while True:
     heartbeat.job_id, heartbeat.job_title = data.job_id, data.job_title
 
     # Start running tasks
-    start_time = datetime.now(tz=timezone.utc)
+    start_time = datetime.now(tz=Config.API_TIMEZONE)
     tasks = [i.module for i in data.tasks]
     logger.info(f"Found tasks in job: {' >> '.join(tasks)}")
     job_failed = True
@@ -193,9 +193,9 @@ while True:
         job_log_level = "SUCCESS"
         job_results_info.pop("module")
 
-    job_results_info.end_time = str(datetime.now())
-    job_results_info.runtime = str(datetime.now() - start_time)
-    logger.log(job_log_level, f"Job runtime: {datetime.now() - start_time}")
+    job_results_info.end_time = str(datetime.now(tz=Config.API_TIMEZONE))
+    job_results_info.runtime = str(datetime.now(tz=Config.API_TIMEZONE) - start_time)
+    logger.log(job_log_level, f"Job runtime: {datetime.now(tz=Config.API_TIMEZONE) - start_time}")
     
     # Move job information into the appropriate collection
     try:
