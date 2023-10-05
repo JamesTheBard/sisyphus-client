@@ -4,7 +4,10 @@ version = "1.4.0b1"
 description = ""
 authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 # readme = "README.md"
-packages = [{ include = "client.py" }]
+packages = [
+    { include = "client.py" },
+    { include = "app" }
+]
 include = [
     "schema/cleanup.schema.json",
 ]

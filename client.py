@@ -29,21 +29,21 @@ logger.debug(f"Heartbeat started, sending info to {Config.API_URL}")
 last_error: Optional[str] = None
 
 
-
 while True:
     heartbeat.set_idle()
     time.sleep(Config.QUEUE_POLL_INTERVAL)
 
     # Check to see if the entire queue is disabled
     try:
-        r = connect_to_api("GET", "/queue", "Error polling API queue for status!")
+        r = connect_to_api(
+            "GET", "/queue", "Error polling API queue for status!")
     except NetworkError as e:
         if last_error != "ERR_QUEUE_STATUS":
             logger.warning(e.message)
         last_error = "ERR_QUEUE_STATUS"
         time.sleep(Config.NETWORK_RETRY_INTERVAL)
         continue
-        
+
     data = Box(json.loads(r.content))
     if data.attributes.disabled:
         if not queue_disabled:
@@ -54,7 +54,8 @@ while True:
 
     # Check to see if we're 'allowed' to process the queue
     try:
-        r = connect_to_api("GET", "/workers/" + Config.HOST_UUID, "Error polling worker for queue permissions!")
+        r = connect_to_api("GET", "/workers/" + Config.HOST_UUID,
+                           "Error polling worker for queue permissions!")
     except NetworkError as e:
         if last_error != "ERR_WORKER_STATUS":
             logger.warning(e.message)
@@ -76,7 +77,8 @@ while True:
 
     # Pull a task off the queue
     try:
-        r = connect_to_api("GET", "/queue/poll", "Error polling queue for jobs!")
+        r = connect_to_api("GET", "/queue/poll",
+                           "Error polling queue for jobs!")
     except NetworkError as e:
         if last_error != "ERR_POLL_STATUS":
             logger.warning(e.message)
@@ -89,7 +91,7 @@ while True:
             logger.info("There are currently no jobs on the queue")
             last_error = "ERR_QUEUE_EMPTY"
         continue
-    
+
     # Reset errors since we made it through the connection gauntlet
     last_error = None
 
@@ -101,9 +103,9 @@ while True:
     logger.info(f"Starting job: {data.job_id}")
     logger.info(f"Job title: {data.job_title}")
     heartbeat.job_id, heartbeat.job_title = data.job_id, data.job_title
-    
+
     start_time = datetime.now(tz=Config.API_TIMEZONE)
-    
+
     # Start processing job
     job_failed = True
     job_results_info = Box()
@@ -111,8 +113,9 @@ while True:
     job_results_info.worker = Config.HOSTNAME
     job_results_info.worker_id = Config.HOST_UUID
     job_results_info.version = Config.VERSION
-    
+
     # Load all job modules and validate task data for the modules
+    logger.info("Validating all task modules and data.")
     modules = None
     try:
         modules = validate_modules(data)
@@ -124,22 +127,24 @@ while True:
         logger.warning(f"Could not validate task data: {e.message}")
     except:
         job_results_info.message = f"Encountered unknown error initializing/validating tasks!"
-        logger.warning(f"Encountered unknown error initializing/validating tasks!")
-    
+        logger.warning(
+            f"Encountered unknown error initializing/validating tasks!")
+
     if not modules:
         job_results_info.end_time = str(datetime.now(tz=Config.API_TIMEZONE))
-        job_results_info.runtime = str(datetime.now(tz=Config.API_TIMEZONE) - start_time)
+        job_results_info.runtime = str(
+            datetime.now(tz=Config.API_TIMEZONE) - start_time)
         logger.warning(f"Aborting job: {data.job_id}")
         try:
             complete_job(data=data, job_info=job_results_info, failed=True)
         except NetworkError as e:
             logger.warning(e.message)
         break
-    
+
     # Start running tasks
     tasks = [i.module for i in data.tasks]
     logger.info(f"Found tasks in job: {' >> '.join(tasks)}")
-    
+
     for idx, task in enumerate(data.tasks):
         module = modules[idx]
         task = Box(task)
@@ -181,12 +186,13 @@ while True:
         job_results_info.pop("module")
 
     job_results_info.end_time = str(datetime.now(tz=Config.API_TIMEZONE))
-    job_results_info.runtime = str(datetime.now(tz=Config.API_TIMEZONE) - start_time)
-    logger.log(job_log_level, f"Job runtime: {datetime.now(tz=Config.API_TIMEZONE) - start_time}")
-    
+    job_results_info.runtime = str(
+        datetime.now(tz=Config.API_TIMEZONE) - start_time)
+    logger.log(job_log_level,
+               f"Job runtime: {datetime.now(tz=Config.API_TIMEZONE) - start_time}")
+
     # Move job information into the appropriate collection
     try:
         complete_job(data=data, job_info=job_results_info, failed=job_failed)
     except NetworkError:
         logger.warning(e.message)
-    
