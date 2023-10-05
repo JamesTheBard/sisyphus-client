@@ -41,6 +41,8 @@ class Mkvmerge(BaseModule):
         command = self.mkvmerge.generate_command(as_string=True)
         logger.debug("Command to run: {command}")
         logger.info("Running mkvmerge muxing task")
+        
+        self.mkvmerge.reload_source_information()
 
         return_code = self.mkvmerge.mux(delete_temp=True)
         if return_code != 0:
