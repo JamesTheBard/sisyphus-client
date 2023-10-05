@@ -1,0 +1,23 @@
+# Modules must be listed here to be used by the client.
+#
+# For example, the `ffmpeg` line breaks down to the following:
+# ```python
+# from modules.ffmpeg import Ffmpeg
+# ```
+#
+# The task JSON would look like this.  The key in the TOML file is how
+# the client knows what module to load.  So the `ffmpeg` value for module
+# loads the module specified in the value.
+#
+# ```json
+# {
+#   "module": "ffmpeg",
+#   "data": {...}
+# }
+# ```
+
+[enabled]
+ffmpeg     = "modules.ffmpeg.Ffmpeg"
+mkvmerge   = "modules.mkvmerge.Mkvmerge"
+mkvextract = "modules.mkvextract.Mkvextract"
+cleanup    = "modules.cleanup.Cleanup"

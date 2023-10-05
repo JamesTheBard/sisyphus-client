@@ -13,6 +13,7 @@ from app.config import Config
 from app.exceptions import (CleanupError, InitializationError, RunError,
                             ValidationError, NetworkError)
 from app.heartbeat import heartbeat
+from app.tasks import connect_to_api, validate_modules, complete_job
 
 # Start the heartbeat
 logger.info(f"Starting 'sisyphus-client', version {Config.VERSION}")
@@ -27,27 +28,6 @@ logger.debug(f"Heartbeat started, sending info to {Config.API_URL}")
 # Processing loop
 last_error: Optional[str] = None
 
-def connect_to_api(method: str, rest_path: str, fail_message: str, **kwargs) -> requests.Response:
-    """Connect to the API server via REST.
-
-    Args:
-        method (str): The method to use (e.g. `GET`, `POST`)
-        rest_path (str): The path to use (e.g. `/queue`)
-        fail_message (str): The message to use in case of failure
-
-    Raises:
-        NetworkError: When there is any issue connecting to the API server or getting data from it.
-
-    Returns:
-        requests.Response: The resulting response from the request.
-    """
-    url = Config.API_URL + rest_path
-    try:
-        logger.debug(f"Attempting '{method}' request on: '{url}'")
-        r = requests.request(method, url, timeout=3, **kwargs)
-    except Exception:
-        raise NetworkError(fail_message)
-    return r
 
 
 while True:
@@ -121,59 +101,52 @@ while True:
     logger.info(f"Starting job: {data.job_id}")
     logger.info(f"Job title: {data.job_title}")
     heartbeat.job_id, heartbeat.job_title = data.job_id, data.job_title
-
-    # Verify that all modules exist and validate task data
-    start_time = datetime.now(tz=Config.API_TIMEZONE)
-    tasks = list()
-    initialize_error = True
-    for task in data.tasks:
-        module_path = task.module.split(".")
-        module_name = module_path[-1].capitalize()
-        if len(task.module.split(".")) == 1:
-            module_path = ["modules", module_path[0]]
-        module_path = ".".join(module_path)
-
-        if not importlib.util.find_spec():
-            continue
-
-        try:
-            module = getattr(importlib.import_module(module_path), module_name)
-            module = module(task=task.data)
-        except InitializationError as e:
-            job_results_info.message = f"Could not initialize module: {e.message}"
-            logger.warning(f"Could not initialize module: {e.message}")
-            logger.warning(f"Aborting job: {data.job_id}")
-            break
-
-        try:
-            module.validate()
-        except ValidationError as e:
-            job_results_info.message = f"Could not validate task data: {e.message}"
-            logger.warning(f"Could not validate task data: {e.message}")
-            logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
-            logger.warning(f"Module runtime: {module.get_duration()}")
-            break
-
-        tasks.append(module)
-
     
-
-    # Start running tasks
-    tasks = [i.module for i in data.tasks]
-    logger.info(f"Found tasks in job: {' >> '.join(tasks)}")
+    start_time = datetime.now(tz=Config.API_TIMEZONE)
+    
+    # Start processing job
     job_failed = True
     job_results_info = Box()
     job_results_info.start_time = str(start_time)
+    job_results_info.worker = Config.HOSTNAME
+    job_results_info.worker_id = Config.HOST_UUID
+    job_results_info.version = Config.VERSION
+    
+    # Load all job modules and validate task data for the modules
+    modules = None
+    try:
+        modules = validate_modules(data)
+    except InitializationError as e:
+        job_results_info.message = e.message
+        logger.warning(e.message)
+    except ValidationError as e:
+        job_results_info.message = f"Could not validate task data: {e.message}"
+        logger.warning(f"Could not validate task data: {e.message}")
+    except:
+        job_results_info.message = f"Encountered unknown error initializing/validating tasks!"
+        logger.warning(f"Encountered unknown error initializing/validating tasks!")
+    
+    if not modules:
+        job_results_info.end_time = str(datetime.now(tz=Config.API_TIMEZONE))
+        job_results_info.runtime = str(datetime.now(tz=Config.API_TIMEZONE) - start_time)
+        logger.warning(f"Aborting job: {data.job_id}")
+        try:
+            complete_job(data=data, job_info=job_results_info, failed=True)
+        except NetworkError as e:
+            logger.warning(e.message)
+        break
+    
+    # Start running tasks
+    tasks = [i.module for i in data.tasks]
+    logger.info(f"Found tasks in job: {' >> '.join(tasks)}")
+    
     for idx, task in enumerate(data.tasks):
+        module = modules[idx]
         task = Box(task)
         task_name, task_data = task.module, task.data
         logger.info(
             f"Starting task: {task_name} [{idx + 1} of {len(data.tasks)}]")
-        module_path = f"modules.{task_name}"
         job_results_info.module = task_name
-        job_results_info.worker = Config.HOSTNAME
-        job_results_info.worker_id = Config.HOST_UUID
-        job_results_info.version = Config.VERSION
 
         try:
             module.run()
@@ -213,12 +186,7 @@ while True:
     
     # Move job information into the appropriate collection
     try:
-        connect_to_api(
-            method="PATCH", 
-            rest_path=f'/jobs/{data.job_id}/completed',
-            fail_message="Could not finalize job in the queue!",
-            json={"failed": job_failed, "info": job_results_info}
-        )
+        complete_job(data=data, job_info=job_results_info, failed=job_failed)
     except NetworkError:
         logger.warning(e.message)
     
