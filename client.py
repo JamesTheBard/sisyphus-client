@@ -1,3 +1,4 @@
+import importlib.util
 import importlib
 import json
 import time
@@ -121,8 +122,43 @@ while True:
     logger.info(f"Job title: {data.job_title}")
     heartbeat.job_id, heartbeat.job_title = data.job_id, data.job_title
 
-    # Start running tasks
+    # Verify that all modules exist and validate task data
     start_time = datetime.now(tz=Config.API_TIMEZONE)
+    tasks = list()
+    initialize_error = True
+    for task in data.tasks:
+        module_path = task.module.split(".")
+        module_name = module_path[-1].capitalize()
+        if len(task.module.split(".")) == 1:
+            module_path = ["modules", module_path[0]]
+        module_path = ".".join(module_path)
+
+        if not importlib.util.find_spec():
+            continue
+
+        try:
+            module = getattr(importlib.import_module(module_path), module_name)
+            module = module(task=task.data)
+        except InitializationError as e:
+            job_results_info.message = f"Could not initialize module: {e.message}"
+            logger.warning(f"Could not initialize module: {e.message}")
+            logger.warning(f"Aborting job: {data.job_id}")
+            break
+
+        try:
+            module.validate()
+        except ValidationError as e:
+            job_results_info.message = f"Could not validate task data: {e.message}"
+            logger.warning(f"Could not validate task data: {e.message}")
+            logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
+            logger.warning(f"Module runtime: {module.get_duration()}")
+            break
+
+        tasks.append(module)
+
+    
+
+    # Start running tasks
     tasks = [i.module for i in data.tasks]
     logger.info(f"Found tasks in job: {' >> '.join(tasks)}")
     job_failed = True
@@ -140,30 +176,8 @@ while True:
         job_results_info.version = Config.VERSION
 
         try:
-            module = getattr(importlib.import_module(
-                module_path), task_name.capitalize())
-            module = module(task=task_data)
-        except InitializationError as e:
-            job_results_info.message = f"Could not initialize module: {e.message}"
-            logger.warning(f"Could not initialize module: {e.message}")
-            logger.warning(f"Aborting job: {data.job_id}")
-            break
-        except ModuleNotFoundError as e:
-            job_results_info.message = f"Could not find module: {module_path}"
-            logger.warning(f"Could not find module: {module_path}")
-            logger.warning(f"Aborting job: {data.job_id}")
-            break
-
-        try:
-            module.validate()
             module.run()
             module.cleanup()
-        except ValidationError as e:
-            job_results_info.message = f"Could not validate task data: {e.message}"
-            logger.warning(f"Could not validate task data: {e.message}")
-            logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
-            logger.warning(f"Module runtime: {module.get_duration()}")
-            break
         except RunError as e:
             job_results_info.message = f"Failed to run task: {e.message}"
             logger.warning(f"Failed to run task: {e.message}")
