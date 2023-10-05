@@ -71,7 +71,7 @@ def validate_modules(data: Union[dict, Box]) -> List[object]:
         logger.debug(f"Validated module data!")
 
         tasks.append(module)
-        return tasks
+    return tasks
 
 
 def complete_job(data: Union[dict, Box], job_info: Union[dict, Box], failed: bool = False) -> None:
