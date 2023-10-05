@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import platform
 import tomllib
 import uuid
@@ -6,10 +7,13 @@ from zoneinfo import ZoneInfo
 
 from box import Box
 
+module_path = Path(os.path.dirname(os.path.abspath(__file__)))
+module_path = module_path / Path('../modules.toml')
+
 with open("pyproject.toml", 'rb') as f:
     pyproject = Box(tomllib.load(f))
 
-with open("modules.toml", 'rb') as f:
+with open(module_path, 'rb') as f:
     modules = Box(tomllib.load(f))
 
 
