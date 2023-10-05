@@ -7,7 +7,6 @@ authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 packages = [{ include = "client.py" }]
 include = [
     "schema/cleanup.schema.json",
-    "modules.toml"
 ]
 
 [tool.poetry.dependencies]
@@ -28,3 +27,9 @@ jinja2 = "^3.1.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.client.modules.enabled]
+ffmpeg     = "modules.ffmpeg.Ffmpeg"
+mkvmerge   = "modules.mkvmerge.Mkvmerge"
+mkvextract = "modules.mkvextract.Mkvextract"
+cleanup    = "modules.cleanup.Cleanup"

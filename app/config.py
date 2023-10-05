@@ -7,14 +7,8 @@ from zoneinfo import ZoneInfo
 
 from box import Box
 
-module_path = Path(os.path.dirname(os.path.abspath(__file__)))
-module_path = module_path / Path('../modules.toml')
-
 with open("pyproject.toml", 'rb') as f:
     pyproject = Box(tomllib.load(f))
-
-with open(module_path, 'rb') as f:
-    modules = Box(tomllib.load(f))
 
 
 class Config:
@@ -27,4 +21,4 @@ class Config:
     QUEUE_POLL_INTERVAL = int(os.environ.get("QUEUE_POLL_INTERVAL", "10"))
     NETWORK_RETRY_INTERVAL = int(
         os.environ.get("NETWORK_RETRY_INTERVAL", "20"))
-    MODULES = modules.enabled
+    MODULES = pyproject.tool.client.modules.enabled
