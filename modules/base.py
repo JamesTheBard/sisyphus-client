@@ -50,6 +50,7 @@ class BaseModule:
         Raises:
             RunError: An error occured when running the module.
         """
+        self.set_start_time()
         logger.info("No run actions, skipping")
 
     def cleanup(self) -> None:
