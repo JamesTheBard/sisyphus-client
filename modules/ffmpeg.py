@@ -91,7 +91,7 @@ class Ffmpeg(BaseModule):
             return_code = self.run_encode()
         
             if return_code == -11:
-                logger.warning("Encountered error with encode (-11), restarting encode.")
+                logger.warning("Encountered error with encode (SIGSEGV), restarting encode.")
                 continue
                 
             if return_code != 0:

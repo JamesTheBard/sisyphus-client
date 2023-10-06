@@ -1,4 +1,4 @@
-FROM python:3.11-alpine
+FROM python:3.12-slim
 
 ARG API_URL
 ARG HOSTNAME_OVERRIDE
@@ -7,9 +7,9 @@ ENV API_URL=${API_URL}
 ENV HOSTNAME_OVERRIDE=${HOSTNAME_OVERRIDE}
 ENV LOGURU_LEVEL=${LOGURU_LEVEL}
 
-RUN apk add --no-cache \
-        ffmpeg \
-        mkvtoolnix
+RUN apt-get update \
+    && apt-get install -y ffmpeg mkvtoolnix-cli \
+    && apt-get clean
 
 RUN pip install poetry
 
