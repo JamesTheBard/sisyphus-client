@@ -39,6 +39,14 @@ class Mkvmerge(BaseModule):
 
     def run(self):
         self.mkvmerge.reload_source_information()
+        logger.info("Rescanned source information.")
+        
+        for source in self.mkvmerge.sources:
+            if not source.source_file.exists:
+                raise RunError(f"The source file '{str(source.source_file)}' does not exist!")
+            if not len(source.info):
+                raise RunError(f"The source file '{str(source.source_file)}' is either corrupt or has no track information associated with it!")
+            
         command = self.mkvmerge.generate_command(as_string=True)
         logger.debug("Command to run: {command}")
         logger.info("Running mkvmerge muxing task")
