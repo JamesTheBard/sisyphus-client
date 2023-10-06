@@ -107,7 +107,6 @@ while True:
     start_time = datetime.now(tz=Config.API_TIMEZONE)
 
     # Start processing job
-    job_failed = True
     job_results_info = Box()
     job_results_info.start_time = str(start_time)
     job_results_info.worker = Config.HOSTNAME
@@ -146,6 +145,8 @@ while True:
     logger.info(f"Found tasks in job: {' >> '.join(tasks)}")
 
     for idx, task in enumerate(data.tasks):
+        job_failed = True
+        
         module = modules[idx]
         task = Box(task)
         task_name, task_data = task.module, task.data
