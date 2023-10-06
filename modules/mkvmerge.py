@@ -38,10 +38,20 @@ class Mkvmerge(BaseModule):
         logger.info("Task data validated successfully.")
 
     def run(self):
+        self.set_start_time()
+        self.mkvmerge.reload_source_information()
+        logger.info("Rescanned source information.")
+        
+        for source in self.mkvmerge.sources:
+            if not source.source_file.exists():
+                raise RunError(f"The source file '{str(source.source_file)}' does not exist!")
+            if source.info.errors:
+                raise RunError(f"Error loading source file '{str(source.source_file)}': {source.info.errors[0]}")
+            
         command = self.mkvmerge.generate_command(as_string=True)
         logger.debug("Command to run: {command}")
         logger.info("Running mkvmerge muxing task")
-
+        
         return_code = self.mkvmerge.mux(delete_temp=True)
         if return_code != 0:
             raise RunError(

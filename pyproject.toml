@@ -1,11 +1,16 @@
 [tool.poetry]
 name = "sisyphus-client"
-version = "1.3.4"
+version = "1.4.0"
 description = ""
 authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 # readme = "README.md"
-packages = [{ include = "client.py" }]
-include = ["schema/cleanup.schema.json"]
+packages = [
+    { include = "client.py" },
+    { include = "app" }
+]
+include = [
+    "schema/cleanup.schema.json",
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -25,3 +30,9 @@ jinja2 = "^3.1.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.client.modules.enabled]
+ffmpeg     = "modules.ffmpeg.Ffmpeg"
+mkvmerge   = "modules.mkvmerge.Mkvmerge"
+mkvextract = "modules.mkvextract.Mkvextract"
+cleanup    = "modules.cleanup.Cleanup"
