@@ -8,7 +8,7 @@ ENV HOSTNAME_OVERRIDE=${HOSTNAME_OVERRIDE}
 ENV LOGURU_LEVEL=${LOGURU_LEVEL}
 
 RUN apt-get update \
-    && apt-get install -y ffmpeg mkvtoolnix-cli \
+    && apt-get install -y ffmpeg mkvtoolnix \
     && apt-get clean
 
 RUN pip install poetry
