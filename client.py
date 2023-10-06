@@ -177,9 +177,9 @@ while True:
             break
 
         job_failed = False
-        job_results_info.completed = not job_failed
         logger.info(f"Module runtime: {module.get_duration()}")
 
+    job_results_info.completed = not job_failed
     if job_failed:
         job_log_level = "WARNING"
     else:

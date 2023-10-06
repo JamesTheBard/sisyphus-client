@@ -59,12 +59,11 @@ class Ffmpeg(BaseModule):
 
         logger.info("Task data validated successfully.")
 
-    def run(self):
+    def run_encode(self) -> int:
         command = self.ffmpeg.generate_command()
         info = self.ffmpeg.get_primary_video_information()
         logger.debug(f"Video information: {info}")
         logger.debug(f"Command to run: {command}")
-        logger.info(f"Running ffmpeg encoding task")
         command = shlex.split(command)
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -83,10 +82,24 @@ class Ffmpeg(BaseModule):
                         self.status.info.total_frames = info.frames
                         self.status.progress = current_frame / info.frames * 100
                     self.heartbeat.set_data(self.status)
+                    
+        return return_code
 
-        if return_code != 0:
-            raise RunError(
-                f"The `ffmpeg` command returned exit code {return_code}, command: {' '.join(command)}")
+    def run(self):
+        logger.info(f"Running ffmpeg encoding task")
+        while True:
+            return_code = self.run_encode()
+        
+            if return_code == -11:
+                logger.warning("Encountered error with encode (-11), restarting encode.")
+                continue
+                
+            if return_code != 0:
+                command = self.ffmpeg.generate_command()
+                raise RunError(
+                    f"The `ffmpeg` command returned exit code {return_code}, command: {' '.join(command)}")
+                
+            return
 
     def get_options_from_server(self) -> bool:
         """Retrieves module option set data from the API server.
