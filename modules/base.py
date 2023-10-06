@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union
+from typing import Union, Optional
 
 from box import Box
 from loguru import logger
@@ -20,7 +20,7 @@ class BaseModule:
     """
     heartbeat: Heartbeat
     task: Box
-    start_time: datetime
+    start_time: Optional[datetime]
 
     def __init__(self, task: Union[dict, Box]):
         """Initializes the instance based on task information.
@@ -33,7 +33,7 @@ class BaseModule:
         """
         self.heartbeat = heartbeat
         self.task = Box(task)
-        self.start_time = datetime.now(tz=Config.API_TIMEZONE)
+        self.start_time = None
         # pass
 
     def validate(self) -> None:
@@ -67,3 +67,8 @@ class BaseModule:
             datetime: The time elapsed since module start
         """
         return datetime.now(tz=Config.API_TIMEZONE) - self.start_time
+    
+    def set_start_time(self) -> None:
+        """Set the start time of the module.
+        """
+        self.start_time = datetime.now(tz=Config.API_TIMEZONE)

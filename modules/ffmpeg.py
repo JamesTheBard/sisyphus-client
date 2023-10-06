@@ -60,6 +60,11 @@ class Ffmpeg(BaseModule):
         logger.info("Task data validated successfully.")
 
     def run_encode(self) -> int:
+        """Run the actual encode using Ffmpeg.
+
+        Returns:
+            int: The exit/return code of Ffmpeg.
+        """
         command = self.ffmpeg.generate_command()
         info = self.ffmpeg.get_primary_video_information()
         logger.debug(f"Video information: {info}")
@@ -86,6 +91,12 @@ class Ffmpeg(BaseModule):
         return return_code
 
     def run(self):
+        """Run the encode with Ffmpeg.
+
+        Raises:
+            RunError: Ffmpeg fails to complete the encode successfully.
+        """
+        self.set_start_time()
         logger.info(f"Running ffmpeg encoding task")
         while True:
             return_code = self.run_encode()

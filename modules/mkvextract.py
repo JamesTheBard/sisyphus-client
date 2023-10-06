@@ -39,6 +39,7 @@ class Mkvextract(BaseModule):
         logger.debug(f"Task data: {self.task}")
 
     def run(self):
+        self.set_start_time()
         logger.info("Running 'mkvextract' task")
         return_code = self.mkvextract.extract()
         if return_code != 0:

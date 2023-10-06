@@ -46,6 +46,7 @@ class Cleanup(BaseModule):
         logger.info("Task data validated successfully.")
 
     def run(self):
+        self.set_start_time()
         logger.info("Running cleanup tasks")
         for k, v in self.task.items():
             getattr(self, f"_{k}")(v)

@@ -38,6 +38,7 @@ class Mkvmerge(BaseModule):
         logger.info("Task data validated successfully.")
 
     def run(self):
+        self.set_start_time()
         self.mkvmerge.reload_source_information()
         logger.info("Rescanned source information.")
         
