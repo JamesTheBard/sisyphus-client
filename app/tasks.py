@@ -48,7 +48,7 @@ def validate_modules(data: Union[dict, Box]) -> List[object]:
     """
     data = Box(data)
     tasks = list()
-    task_names = ' >> '.join([i.module for i in data])
+    task_names = ' >> '.join([i.module for i in data.tasks])
     logger.info(f"Initializing the following modules: {task_names}")
     for task in data.tasks:
         logger.info(f"Initializing task module: {task.module}")
