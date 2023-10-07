@@ -71,7 +71,7 @@ while True:
     if data.attributes.disabled:
         if last_error != "ERR_WORKER_DISABLED":
             logger.info("The worker is disabled on the main server")
-            last_error != "ERR_WORKER_DISABLED"
+            last_error == "ERR_WORKER_DISABLED"
         continue
 
     # Pull a task off the queue
