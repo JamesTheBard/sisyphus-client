@@ -50,6 +50,7 @@ while True:
         if last_error != "ERR_QUEUE_DISABLED":
             logger.info("The main server queue is disabled")
             last_error = "ERR_QUEUE_DISABLED"
+        continue
 
     # Check to see if we're 'allowed' to process the queue
     try:
