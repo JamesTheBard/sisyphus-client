@@ -27,7 +27,8 @@ logger.debug(f"Heartbeat started, sending info to {Config.API_URL}")
 
 # Processing loop
 last_error: Optional[str] = None
-
+queue_disabled = False
+worker_disabled = False
 
 while True:
     heartbeat.set_idle()
@@ -46,10 +47,9 @@ while True:
 
     data = Box(json.loads(r.content))
     if data.attributes.disabled:
-        if not queue_disabled:
+        if last_error != "ERR_QUEUE_DISABLED":
             logger.info("The main server queue is disabled")
-            queue_disabled = True
-        continue
+            last_error == "ERR_QUEUE_DISABLED"
     queue_disabled = False
 
     # Check to see if we're 'allowed' to process the queue
@@ -69,11 +69,10 @@ while True:
 
     data = Box(json.loads(r.content))
     if data.attributes.disabled:
-        if not worker_disabled:
+        if last_error != "ERR_WORKER_DISABLED":
             logger.info("The worker is disabled on the main server")
-            worker_disabled = True
+            last_error != "ERR_WORKER_DISABLED"
         continue
-    worker_disabled = False
 
     # Pull a task off the queue
     try:
