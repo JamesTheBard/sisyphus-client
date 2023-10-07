@@ -49,8 +49,7 @@ while True:
     if data.attributes.disabled:
         if last_error != "ERR_QUEUE_DISABLED":
             logger.info("The main server queue is disabled")
-            last_error == "ERR_QUEUE_DISABLED"
-    queue_disabled = False
+            last_error = "ERR_QUEUE_DISABLED"
 
     # Check to see if we're 'allowed' to process the queue
     try:
@@ -70,8 +69,8 @@ while True:
     data = Box(json.loads(r.content))
     if data.attributes.disabled:
         if last_error != "ERR_WORKER_DISABLED":
-            logger.info("The worker is disabled on the main server")
-            last_error == "ERR_WORKER_DISABLED"
+            logger.info("The worker is disabled from the API server")
+            last_error = "ERR_WORKER_DISABLED"
         continue
 
     # Pull a task off the queue
