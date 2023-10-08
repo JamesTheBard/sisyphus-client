@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "sisyphus-client"
-version = "1.4.1"
+version = "1.5.0a1"
 description = ""
 authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 # readme = "README.md"
 packages = [
     { include = "client.py" },
-    { include = "app" }
+    { include = "app" },
+    { include = "modules" }
 ]
 include = [
     "schema/cleanup.schema.json",
