@@ -98,3 +98,4 @@ class Handbrake(BaseModule):
                 command = self.handbrake.generate_command(as_string=True)
                 raise RunError(
                     f"The `HandBrakeCLI` command returned exit code {return_code}, command: {' '.join(command)}")
+            return
