@@ -49,7 +49,7 @@ class Handbrake(BaseModule):
         Returns:
             int: The exit/return code of HandBrakeCLI.
         """
-        ffprobe = Ffprobe(self.data.source)
+        ffprobe = Ffprobe(self.handbrake.data.source)
         frames = ffprobe.get_streams("video")[0].frames
         frames = frames if frames else None
 
