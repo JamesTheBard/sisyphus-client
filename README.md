@@ -7,6 +7,7 @@ The `sisyphus-client` is the worker client for the Sisyphus distributed encoding
 Jobs are simply a set of tasks with each task calling a Sisyphus module to accomplish specific things.  Currently, the default modules that can be used are:
 
 - `ffmpeg`: A Ffmpeg module that uses `ffmpeg` to encode various sources.
+- `handbrake`: (New in `1.5.0`) A HandBrake module that uses `handbrake` for encoding.
 - `mkvmerge`: A Matroska muxing module that can be used to mux one or more source files together.
 - `mkvextract`: A Matroska module that can extract a myriad of things to include streams, chapter information, and tag information.
 - `cleanup`: A cleanup module used to cleanup any temporary files left over from the job, or to move/copy files from one location or the other.

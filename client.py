@@ -168,12 +168,12 @@ while True:
             logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
             logger.warning(f"Module runtime: {module.get_duration()}")
             break
-        except:
-            job_results_info.message = f"Unknown failure on task!"
-            logger.warning(f"Unknown failure on task!")
-            logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
-            logger.warning(f"Module runtime: {module.get_duration()}")
-            break
+        # except:
+        #     job_results_info.message = f"Unknown failure on task!"
+        #     logger.warning(f"Unknown failure on task!")
+        #     logger.warning(f"Aborting job: {data.job_id} -> {task_name}")
+        #     logger.warning(f"Module runtime: {module.get_duration()}")
+        #     break
 
         job_failed = False
         logger.info(f"Module runtime: {module.get_duration()}")
