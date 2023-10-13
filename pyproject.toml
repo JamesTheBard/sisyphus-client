@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sisyphus-client"
-version = "1.5.0a2"
+version = "1.5.0a3"
 description = ""
 authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 # readme = "README.md"
@@ -34,6 +34,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.client.modules.enabled]
 ffmpeg     = "modules.ffmpeg.Ffmpeg"
+handbrake  = "modules.handbrake.Handbrake"
 mkvmerge   = "modules.mkvmerge.Mkvmerge"
 mkvextract = "modules.mkvextract.Mkvextract"
 cleanup    = "modules.cleanup.Cleanup"

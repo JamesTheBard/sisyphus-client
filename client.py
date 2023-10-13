@@ -123,10 +123,10 @@ while True:
     except ValidationError as e:
         job_results_info.message = f"Could not validate task data: {e.message}"
         logger.warning(f"Could not validate task data: {e.message}")
-    # except:
-    #     job_results_info.message = f"Encountered unknown error initializing/validating tasks!"
-    #     logger.warning(
-    #         f"Encountered unknown error initializing/validating tasks!")
+    except:
+        job_results_info.message = f"Encountered unknown error initializing/validating tasks!"
+        logger.warning(
+            f"Encountered unknown error initializing/validating tasks!")
 
     if not modules:
         job_results_info.end_time = str(datetime.now(tz=Config.API_TIMEZONE))
