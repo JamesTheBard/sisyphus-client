@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sisyphus-client"
-version = "1.4.1"
+version = "1.5.0"
 description = ""
 authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 # readme = "README.md"
@@ -21,6 +21,7 @@ loguru = "^0.7.2"
 sisyphus-ffmpeg = { git = "https://github.com/JamesTheBard/sisyphus-ffmpeg.git" }
 sisyphus-matroska = { git = "https://github.com/JamesTheBard/sisyphus-matroska.git" }
 tzdata = "^2023.3"
+sisyphus-handbrake = {git = "https://github.com/JamesTheBard/sisyphus-handbrake.git", rev = "v1.0.0"}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -33,6 +34,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.client.modules.enabled]
 ffmpeg     = "modules.ffmpeg.Ffmpeg"
+handbrake  = "modules.handbrake.Handbrake"
 mkvmerge   = "modules.mkvmerge.Mkvmerge"
 mkvextract = "modules.mkvextract.Mkvextract"
 cleanup    = "modules.cleanup.Cleanup"
