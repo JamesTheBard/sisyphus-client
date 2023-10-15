@@ -3,6 +3,7 @@ import importlib.util
 from typing import List, Union
 
 import requests
+import box
 from box import Box
 from loguru import logger
 
@@ -52,12 +53,17 @@ def validate_modules(data: Union[dict, Box]) -> List[object]:
     logger.info(f"Initializing the following modules: {task_names}")
     for task in data.tasks:
         logger.info(f"Initializing task module: {task.module}")
-        module_path = '.'.join(Config.MODULES[task.module].split('.')[0:-1])
-        module_name = Config.MODULES[task.module].split('.')[-1]
+        try:
+            module_path = '.'.join(Config.MODULES[task.module].split('.')[0:-1])
+            module_name = Config.MODULES[task.module].split('.')[-1]
+        except BoxKeyError as e:
+            raise InitializationError(
+                "Module not enabled in `pyproject` file: {task.module}"
+            )
 
         if not importlib.util.find_spec(module_path):
             raise InitializationError(
-                f"Could not find client module: {module_path}:{module_name}")
+                f"Could not load client module: {module_path}:{module_name}")
         logger.debug(f"Found module: {task.module} -> {module_path}")
 
         try:
