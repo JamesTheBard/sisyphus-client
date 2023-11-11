@@ -1,0 +1,15 @@
+name: sisyphus-client
+
+services:
+  sisyphus-client:
+    restart: always
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.alpine
+    environment:
+      HOSTNAME_OVERRIDE: ${HOSTNAME}
+      API_URL: ${API_URL}
+      LOGURU_LEVEL: ${LOGURU_LEVEL:-INFO}
+      HOST_UUID: ${HOST_UUID}
+    volumes:
+      - /mnt/phoenix:/mnt/phoenix
