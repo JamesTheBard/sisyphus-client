@@ -6,7 +6,7 @@ ENV API_URL=${API_URL}
 ENV HOSTNAME_OVERRIDE=${HOSTNAME_OVERRIDE}
 ENV LOGURU_LEVEL=${LOGURU_LEVEL}
 
-RUN apk add --no-cache handbrake ffmpeg mkvtoolnix --repository="http://dl-cdn.alpinelinux.org/alpine/edge/testing"
+RUN apk add --no-cache handbrake ffmpeg mkvtoolnix --repository="http://dl-cdn.alpinelinux.org/alpine/edge/community"
 
 RUN pip install poetry
 
