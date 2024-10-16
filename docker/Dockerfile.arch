@@ -8,7 +8,13 @@ ENV HOSTNAME_OVERRIDE=${HOSTNAME_OVERRIDE}
 ENV LOGURU_LEVEL=${LOGURU_LEVEL}
 
 RUN pacman -Syu --noconfirm \
-    && pacman -S --noconfirm ffmpeg handbrake-cli python python-virtualenv python-poetry
+    && pacman -S --noconfirm \
+        ffmpeg \
+        handbrake-cli \
+        mkvtoolnix-cli \
+        python \
+        python-virtualenv \
+        python-poetry
 
 WORKDIR /app
 
