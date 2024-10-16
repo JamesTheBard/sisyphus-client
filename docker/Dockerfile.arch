@@ -1,0 +1,21 @@
+FROM archlinux:latest
+
+ARG API_URL
+ARG HOSTNAME_OVERRIDE
+ARG LOGURU_LEVEL=INFO
+ENV API_URL=${API_URL}
+ENV HOSTNAME_OVERRIDE=${HOSTNAME_OVERRIDE}
+ENV LOGURU_LEVEL=${LOGURU_LEVEL}
+
+RUN pacman -Syu --noconfirm \
+    && pacman -S --noconfirm ffmpeg handbrake-cli python python-virtualenv python-poetry
+
+WORKDIR /app
+
+COPY client.py pyproject.toml /app/
+COPY app app
+COPY modules modules
+
+RUN poetry install
+
+ENTRYPOINT ["poetry", "run", "python", "client.py"]
