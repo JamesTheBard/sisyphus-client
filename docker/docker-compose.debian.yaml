@@ -1,5 +1,3 @@
-name: sisyphus-client
-
 services:
   sisyphus-client:
     restart: always
