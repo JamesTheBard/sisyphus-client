@@ -1,19 +1,17 @@
-import importlib.util
 import importlib
 import json
 import time
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
-import requests
 from box import Box
 from loguru import logger
 
 from app.config import Config
-from app.exceptions import (CleanupError, InitializationError, RunError,
-                            ValidationError, NetworkError)
+from app.exceptions import (CleanupError, InitializationError, NetworkError,
+                            RunError, ValidationError)
 from app.heartbeat import heartbeat
-from app.tasks import connect_to_api, validate_modules, complete_job
+from app.tasks import complete_job, connect_to_api, validate_modules
 
 # Start the heartbeat
 logger.info(f"Starting 'sisyphus-client', version {Config.VERSION}")
@@ -145,7 +143,7 @@ while True:
 
     for idx, task in enumerate(data.tasks):
         job_failed = True
-        
+
         module = modules[idx]
         task = Box(task)
         task_name, task_data = task.module, task.data
