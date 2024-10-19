@@ -101,6 +101,7 @@ class Ffmpeg(BaseModule):
         while True:
             return_code = self.run_encode()
         
+            # This is here because of some issues with ffmpeg in the past.
             if return_code == -11:
                 logger.warning("Encountered error with encode (SIGSEGV), restarting encode.")
                 continue
@@ -108,7 +109,7 @@ class Ffmpeg(BaseModule):
             if return_code != 0:
                 command = self.ffmpeg.generate_command()
                 raise RunError(
-                    f"The `ffmpeg` command returned exit code {return_code}, command: {' '.join(command)}")
+                    f"The `ffmpeg` command returned exit code {return_code}, command: {command}")
                 
             return
 
