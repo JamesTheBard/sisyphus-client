@@ -21,7 +21,7 @@ loguru = "^0.7.2"
 sisyphus-ffmpeg = { git = "https://github.com/JamesTheBard/sisyphus-ffmpeg.git", rev = "v1.1.0" }
 sisyphus-matroska = { git = "https://github.com/JamesTheBard/sisyphus-matroska.git", rev = "v1.0.4" }
 tzdata = "^2023.3"
-sisyphus-handbrake = {git = "https://github.com/JamesTheBard/sisyphus-handbrake.git", rev = "v1.0.1"}
+sisyphus-handbrake = {git = "https://github.com/JamesTheBard/sisyphus-handbrake.git", rev = "v1.0.2"}
 
 
 [tool.poetry.group.dev.dependencies]
