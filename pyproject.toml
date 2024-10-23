@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sisyphus-client"
-version = "1.5.5"
+version = "1.5.6"
 description = ""
 authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 # readme = "README.md"
@@ -18,7 +18,7 @@ requests = "^2.31.0"
 python-box = "^7.1.1"
 jsonschema = "^4.19.0"
 loguru = "^0.7.2"
-sisyphus-ffmpeg = { git = "https://github.com/JamesTheBard/sisyphus-ffmpeg.git", rev = "v1.0.0" }
+sisyphus-ffmpeg = { git = "https://github.com/JamesTheBard/sisyphus-ffmpeg.git", rev = "v1.1.0" }
 sisyphus-matroska = { git = "https://github.com/JamesTheBard/sisyphus-matroska.git", rev = "v1.0.4" }
 tzdata = "^2023.3"
 sisyphus-handbrake = {git = "https://github.com/JamesTheBard/sisyphus-handbrake.git", rev = "v1.0.1"}
