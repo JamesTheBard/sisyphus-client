@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sisyphus-client"
-version = "1.5.7"
+version = "1.5.8"
 description = ""
 authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 # readme = "README.md"
@@ -8,8 +8,9 @@ packages = [
     { include = "client.py" },
     { include = "app" }
 ]
+
 include = [
-    "schema/cleanup.schema.json",
+    { path = "schema/*.schema.json", format = ["sdist", "wheel"] }
 ]
 
 [tool.poetry.dependencies]
@@ -18,10 +19,10 @@ requests = "^2.31.0"
 python-box = "^7.1.1"
 jsonschema = "^4.19.0"
 loguru = "^0.7.2"
-sisyphus-ffmpeg = { git = "https://github.com/JamesTheBard/sisyphus-ffmpeg.git", rev = "v1.1.1" }
-sisyphus-matroska = { git = "https://github.com/JamesTheBard/sisyphus-matroska.git", rev = "v1.0.4" }
+sisyphus-ffmpeg = { git = "https://github.com/JamesTheBard/sisyphus-ffmpeg.git", rev = "v1.1.2" }
+sisyphus-matroska = { git = "https://github.com/JamesTheBard/sisyphus-matroska.git", rev = "v1.0.5" }
 tzdata = "^2023.3"
-sisyphus-handbrake = { git = "https://github.com/JamesTheBard/sisyphus-handbrake.git", rev = "v1.0.3" }
+sisyphus-handbrake = { git = "https://github.com/JamesTheBard/sisyphus-handbrake.git", rev = "v1.0.4" }
 
 
 [tool.poetry.group.dev.dependencies]
