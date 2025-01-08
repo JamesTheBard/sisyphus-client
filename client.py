@@ -1,3 +1,4 @@
+import html
 import importlib
 import json
 import time
@@ -92,7 +93,7 @@ while True:
     # Reset errors since we made it through the connection gauntlet
     last_error = None
 
-    data = Box(json.loads(r.content))
+    data = Box(json.loads(html.unescape(r.text)))
 
     # Update heartbeat
     heartbeat.message.status = "in_progress"
